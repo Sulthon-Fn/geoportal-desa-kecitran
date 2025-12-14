@@ -213,7 +213,9 @@
                 max-height: 72vh;
             }
 
-            .layer-drawer.collapsed { opacity: 0.75; transform: translateY(0); }
+            .layer-drawer.collapsed { opacity: 1; }
+            .layer-drawer.collapsed .drawer-header > div { display: none; }
+            .layer-drawer.collapsed .drawer-toggle { background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); }
 
             .drawer-body { max-height: 60vh; overflow-y: auto; padding-right: 4px; }
             .layer-drawer.collapsed .drawer-body { display: none; }
@@ -380,8 +382,10 @@
                 main { padding: 24px 18px 56px; }
                 .hero { padding: 24px; }
                 #map { height: 60vh; min-height: 420px; }
-                .map-overlay { left: 12px; right: 12px; top: 12px; max-width: none; }
-                .layer-drawer { transform: none !important; opacity: 1; }
+                .map-overlay { left: auto; right: 12px; top: 12px; max-width: 280px; }
+                .layer-drawer { transform: none !important; opacity: 1; max-height: 50vh; }
+                .layer-drawer .drawer-body { max-height: 40vh; }
+                .layer-drawer.collapsed { max-height: none; }
             }
 
             /* Override qgis2web defaults that locked page scrolling */
@@ -441,13 +445,13 @@
                 <div class="map-wrap">
                     <div id="map"></div>
                     <aside class="map-overlay">
-                        <div class="layer-drawer" id="layerDrawer">
+                        <div class="layer-drawer collapsed" id="layerDrawer">
                             <div class="drawer-header">
                                 <div>
                                     <p class="drawer-title">Layer &amp; Pencarian</p>
                                     <p class="drawer-sub">Toggle untuk layer &amp; cari fitur</p>
                                 </div>
-                                <button class="drawer-toggle" id="drawerToggle" aria-label="Sembunyikan panel">×</button>
+                                <button class="drawer-toggle" id="drawerToggle" aria-label="Tampilkan panel">☰</button>
                             </div>
 
                             <div class="drawer-body">
