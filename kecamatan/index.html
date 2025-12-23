@@ -7,17 +7,10 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <title>Geoportal Kecamatan Purwareja Klampok</title>
+        <meta name="description" content="Sistem Informasi Geografis Kecamatan Purwareja Klampok, Kabupaten Banjarnegara - Platform pemetaan digital wilayah kecamatan.">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/leaflet.css">
-        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
-        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
-        <link rel="stylesheet" href="css/qgis2web.css">
-        <link rel="stylesheet" href="css/fontawesome-all.min.css">
-        <link rel="stylesheet" href="css/leaflet-search.css">
-        <link rel="stylesheet" href="css/leaflet.photon.css">
-        <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
             :root {
                 --primary-color: #0F2C59;
@@ -31,8 +24,6 @@
                 --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
                 --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
                 --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-                --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
-                --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
 
             * { box-sizing: border-box; }
@@ -112,6 +103,7 @@
                 background: rgba(255,255,255,0.1);
                 color: #fff;
                 font-size: 20px;
+                cursor: pointer;
             }
 
             main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 72px; }
@@ -211,6 +203,13 @@
                 letter-spacing: -0.3px;
                 color: var(--primary-color);
                 font-weight: 700;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 600ms var(--ease-out-expo);
+            }
+            .section-title.visible {
+                opacity: 1;
+                transform: translateY(0);
             }
 
             .card-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -237,19 +236,25 @@
                 box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.18); 
             }
 
-            .card.visible:hover {
-                transform: translateY(-6px) scale(1.01);
-            }
-
             .card h3 { 
                 color: var(--primary-color); 
                 margin: 0 0 12px;
                 font-size: 18px;
             }
 
+            .card-accent {
+                border-top-color: var(--accent-color);
+            }
+
             .bio-list { list-style: none; padding: 0; margin: 12px 0 0; color: var(--text-muted); line-height: 1.8; }
             .bio-list li { padding: 4px 0; }
             .bio-list strong { color: var(--text-main); }
+
+            .summary-text {
+                color: var(--text-muted);
+                line-height: 1.8;
+                margin: 0;
+            }
 
             /* Data Table Styles */
             .data-table-container {
@@ -282,13 +287,8 @@
                 font-size: 12px;
             }
 
-            .data-table th:first-child {
-                border-radius: 8px 0 0 0;
-            }
-
-            .data-table th:last-child {
-                border-radius: 0 8px 0 0;
-            }
+            .data-table th:first-child { border-radius: 8px 0 0 0; }
+            .data-table th:last-child { border-radius: 0 8px 0 0; }
 
             .data-table td {
                 padding: 12px 16px;
@@ -302,10 +302,6 @@
             .data-table tbody tr:hover {
                 background: rgba(5, 150, 105, 0.06);
                 transform: scale(1.01);
-            }
-
-            .data-table tbody tr:last-child td {
-                border-bottom: none;
             }
 
             .data-table tfoot {
@@ -333,102 +329,10 @@
                 transition: width 800ms var(--ease-out-expo);
             }
 
-            .map-wrap {
-                margin-top: 24px;
-                border-radius: 12px;
-                overflow: hidden;
-                border: 2px solid var(--secondary-color);
-                box-shadow: var(--shadow-lg);
-                position: relative;
-                isolation: isolate;
-            }
-
-            #map {
-                width: 100%;
-                height: 70vh;
-                min-height: 480px;
-            }
-
-            .map-overlay {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                z-index: 1200;
-                max-width: min(360px, 90vw);
-            }
-
-            .layer-drawer {
-                background: var(--card-bg);
-                border: 1px solid rgba(15, 44, 89, 0.1);
-                border-radius: 12px;
-                box-shadow: var(--shadow-lg);
-                padding: 16px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                transition: transform 180ms ease, opacity 180ms ease;
-                max-height: 72vh;
-            }
-
-            .layer-drawer.collapsed { opacity: 1; }
-            .layer-drawer.collapsed .drawer-header > div { display: none; }
-            .layer-drawer.collapsed .drawer-toggle { background: var(--primary-color); color: #fff; }
-
-            .drawer-body { max-height: 60vh; overflow-y: auto; padding-right: 4px; }
-            .layer-drawer.collapsed .drawer-body { display: none; }
-
-            .drawer-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-            .drawer-title { font-weight: 700; letter-spacing: 0.2px; margin: 0; color: var(--primary-color); }
-            .drawer-sub { margin: 2px 0 0; color: var(--text-muted); font-size: 13px; }
-
-            .drawer-toggle {
-                border: 1px solid rgba(15, 44, 89, 0.2);
-                background: rgba(15, 44, 89, 0.08);
-                color: var(--primary-color);
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: 700;
-            }
-
-            .layer-section { border-top: 1px solid rgba(15, 44, 89, 0.1); padding-top: 8px; }
-            .layer-section:first-of-type { border-top: none; padding-top: 0; }
-            .layer-section-title { margin: 0 0 8px; color: var(--primary-color); font-size: 13px; letter-spacing: 0.3px; text-transform: uppercase; font-weight: 700; }
-
-            .layer-toggle {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px 10px;
-                border-radius: 12px;
-                cursor: pointer;
-                transition: all 300ms var(--ease-out-expo);
-                border: 1px solid rgba(15, 44, 89, 0.1);
-                margin-bottom: 8px;
-                color: var(--text-main);
-            }
-
-            .layer-toggle:hover { background: rgba(5, 150, 105, 0.08); border-color: rgba(5, 150, 105, 0.3); transform: translateX(4px); }
-
-            .layer-toggle input { width: 18px; height: 18px; accent-color: var(--secondary-color); transition: transform 200ms var(--ease-spring); }
-            .layer-toggle input:checked { transform: scale(1.1); }
-            .layer-toggle span { font-weight: 600; }
-
-            .badge {
-                padding: 4px 8px;
-                border-radius: 999px;
-                background: rgba(5, 150, 105, 0.12);
-                color: var(--secondary-color);
-                font-size: 12px;
-                font-weight: 700;
-            }
-
             footer {
                 margin-top: 64px;
                 padding: 32px 20px;
                 text-align: center;
-                color: var(--text-muted);
                 background: var(--primary-color);
                 color: rgba(255, 255, 255, 0.8);
             }
@@ -450,24 +354,6 @@
                 animation: float 7s ease-in-out infinite;
             }
 
-            /* Village label styles */
-            .village-label {
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
-
-            /* Search control restyle */
-            .leaflet-control-search {
-                background: rgba(255, 255, 255, 0.95);
-                border: 1px solid rgba(15, 44, 89, 0.15);
-                box-shadow: 0 10px 30px rgba(15, 44, 89, 0.1);
-                border-radius: 14px;
-                padding: 8px;
-                color: var(--text-main);
-                backdrop-filter: blur(6px);
-            }
-
             @keyframes float {
                 0%, 100% { transform: translateY(0px) rotate(0deg); }
                 25% { transform: translateY(-8px) rotate(0.5deg); }
@@ -476,14 +362,8 @@
             }
 
             @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(40px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                from { opacity: 0; transform: translateY(40px); }
+                to { opacity: 1; transform: translateY(0); }
             }
 
             .hero h1, .hero p, .hero .cta-row, .hero .ribbon {
@@ -494,16 +374,6 @@
             .hero p { animation-delay: 200ms; }
             .hero .cta-row { animation-delay: 350ms; }
 
-            .section-title {
-                opacity: 0;
-                transform: translateY(20px);
-                transition: all 600ms var(--ease-out-expo);
-            }
-            .section-title.visible {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
             @media (max-width: 820px) {
                 .nav-bar { flex-wrap: wrap; }
                 .menu { width: 100%; display: none; flex-direction: column; align-items: flex-start; }
@@ -512,191 +382,263 @@
                 .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
                 main { padding: 24px 18px 56px; }
                 .hero { padding: 24px; }
-                #map { height: 60vh; min-height: 420px; }
-                .map-overlay { left: auto; right: 12px; top: 12px; max-width: 280px; }
-                .layer-drawer { transform: none !important; opacity: 1; max-height: 50vh; }
-                .layer-drawer .drawer-body { max-height: 40vh; }
-                .layer-drawer.collapsed { max-height: none; }
                 .data-table { font-size: 12px; }
                 .data-table th, .data-table td { padding: 10px 12px; }
             }
-
-            /* Override qgis2web defaults */
-            html, body { overflow-x: hidden; overflow-y: auto !important; height: auto; }
-            #map { overflow: visible !important; }
         </style>
     </head>
     <body>
         <header>
             <div class="nav-bar">
                 <div class="brand">
-                    <img src="../desaKecitran/images/Banjarnegara.png" alt="Logo Kabupaten Banjarnegara">
+                    <img src="images/Banjarnegara.png" alt="Logo Kabupaten Banjarnegara">
                     <span>Geoportal Kec. Purwareja Klampok</span>
                 </div>
                 <button class="menu-toggle" aria-label="Toggle menu">☰</button>
                 <nav class="menu" aria-label="Navigasi utama">
-                    <a href="#beranda">Beranda</a>
-                    <a href="#statistik">Statistik Desa</a>
-                    <a href="../desaKecitran/index.html">Peta Desa Kecitran</a>
-                    <a href="#peta" class="pill">Peta Kecamatan</a>
+                    <a href="peta.html" class="pill">🗺️ Peta Kecamatan</a>
+                    <a href="../index.html">Desa Kecitran</a>
                 </nav>
             </div>
         </header>
 
         <main>
             <section class="hero" id="beranda">
-                <div class="ribbon floating">Geoportal Spatial • Purwareja Klampok</div>
+                <div class="ribbon floating">Geoportal Spatial • Kecamatan</div>
                 <h1>Sistem Informasi Geografis Kecamatan Purwareja Klampok</h1>
-                <p>Platform pemetaan digital tingkat kecamatan yang menyajikan data spatial batas administrasi desa, sebaran infrastruktur, dan sarana publik di seluruh wilayah Kecamatan Purwareja Klampok secara interaktif dan komprehensif.</p>
+                <p>Platform pemetaan digital yang menyajikan data spatial batas administrasi desa-desa, sebaran infrastruktur, dan sarana publik secara interaktif di wilayah Kecamatan Purwareja Klampok.</p>
                 <div class="cta-row">
-                    <a class="btn btn-primary" href="#peta">🗺️ Peta Kecamatan</a>
-                    <a class="btn btn-ghost" href="../desaKecitran/index.html">🏘️ Peta Desa Kecitran</a>
+                    <a class="btn btn-primary" href="peta.html">🗺️ Buka Peta Kecamatan</a>
+                    <a class="btn btn-ghost" href="../index.html">📍 Lihat Desa Kecitran</a>
                 </div>
             </section>
 
-            <section id="statistik">
-                <h2 class="section-title">Profil Kecamatan Purwareja Klampok</h2>
+            <!-- Executive Summary Section -->
+            <section id="summary">
+                <h2 class="section-title">📋 Deskripsi Umum (Executive Summary)</h2>
+                <div class="card-grid">
+                    <div class="card card-accent" style="grid-column: 1 / -1;">
+                        <h3>Tentang Sistem Informasi Geografis Ini</h3>
+                        <p class="summary-text">
+                            Sistem Informasi Geografis (SIG/GIS) Kecamatan Purwareja Klampok merupakan platform pemetaan digital berbasis web yang dikembangkan untuk menyajikan data spasial wilayah kecamatan secara interaktif dan informatif. Sistem ini memvisualisasikan batas-batas administrasi 8 desa yang berada di Kecamatan Purwareja Klampok, yaitu: <strong>Kalimandi, Klampok, Kalilandak, Purwareja, Pagak, Sirkandi, Kecitran,</strong> dan <strong>Kaliwinasuh</strong>.
+                        </p>
+                        <br>
+                        <p class="summary-text">
+                            Platform ini dibangun menggunakan teknologi <strong>QGIS</strong> untuk pengolahan data geospasial dan <strong>Leaflet.js</strong> sebagai library peta interaktif berbasis JavaScript. Data disajikan di atas layer <strong>Google Satellite</strong> untuk memberikan konteks visual yang akurat terhadap kondisi wilayah sesungguhnya. Sistem dilengkapi dengan fitur <strong>hover highlight</strong> untuk menyoroti area desa, popup informasi detail, dan layer control untuk mengatur visibilitas data.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profil Wilayah Section -->
+            <section id="profil">
+                <h2 class="section-title">🏛️ Profil Wilayah Kecamatan</h2>
                 <div class="card-grid">
                     <div class="card">
-                        <h3>📍 Informasi Wilayah</h3>
+                        <h3>📍 Informasi Administratif</h3>
                         <ul class="bio-list">
-                            <li><strong>Provinsi:</strong> Jawa Tengah</li>
+                            <li><strong>Nama Kecamatan:</strong> Purwareja Klampok</li>
                             <li><strong>Kabupaten:</strong> Banjarnegara</li>
-                            <li><strong>Kecamatan:</strong> Purwareja Klampok</li>
+                            <li><strong>Provinsi:</strong> Jawa Tengah</li>
+                            <li><strong>Negara:</strong> Indonesia</li>
                             <li><strong>Jumlah Desa:</strong> 8 Desa</li>
-                            <li><strong>Total Luas:</strong> 2.187 Hektare</li>
                         </ul>
                     </div>
                     <div class="card">
-                        <h3>🏛️ Daftar Desa</h3>
+                        <h3>📊 Data Statistik Wilayah</h3>
                         <ul class="bio-list">
-                            <li>🏘️ Purwareja</li>
-                            <li>🏘️ Kecitran</li>
-                            <li>🏘️ Sirkandi</li>
-                            <li>🏘️ Pagak</li>
-                            <li>🏘️ Kalilandak</li>
-                            <li>🏘️ Klampok</li>
-                            <li>🏘️ Kalimandi</li>
-                            <li>🏘️ Kaliwinasuh</li>
+                            <li><strong>Total Luas:</strong> ± 2.736 Ha</li>
+                            <li><strong>Desa Terluas:</strong> Kaliwinasuh (568 Ha)</li>
+                            <li><strong>Desa Terkecil:</strong> Klampok (124 Ha)</li>
+                            <li><strong>Koordinat Pusat:</strong> -7.474, 109.455</li>
                         </ul>
                     </div>
                     <div class="card">
-                        <h3>👨‍💻 Profil Pengembang</h3>
+                        <h3>🗺️ Batas Wilayah</h3>
                         <ul class="bio-list">
-                            <li><strong>Nama:</strong> Sulthon Fadhlun Nafi</li>
-                            <li><strong>NIM:</strong> 23SA21A063</li>
-                            <li><strong>Kelas:</strong> SI 23B GIS</li>
-                            <li><strong>Kampus:</strong> Universitas Amikom Purwokerto</li>
+                            <li><strong>Utara:</strong> Kec. Mandiraja</li>
+                            <li><strong>Selatan:</strong> Kec. Bawang</li>
+                            <li><strong>Barat:</strong> Kec. Purwanegara</li>
+                            <li><strong>Timur:</strong> Kec. Rakit</li>
                         </ul>
                     </div>
                 </div>
+            </section>
 
-                <h2 class="section-title">Luas Wilayah dan Persentase Per Desa</h2>
+            <!-- Daftar Desa Section -->
+            <section id="desa-list">
+                <h2 class="section-title">🏘️ Daftar Desa di Kecamatan Purwareja Klampok</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>1. Desa Kalimandi</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 298 Ha</li>
+                            <li><strong>Persentase:</strong> 10,89%</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>2. Desa Klampok</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 124 Ha</li>
+                            <li><strong>Persentase:</strong> 4,53%</li>
+                            <li><strong>Keterangan:</strong> Pusat Kecamatan</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>3. Desa Kalilandak</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 392 Ha</li>
+                            <li><strong>Persentase:</strong> 14,33%</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>4. Desa Purwareja</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 287 Ha</li>
+                            <li><strong>Persentase:</strong> 10,49%</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>5. Desa Pagak</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 421 Ha</li>
+                            <li><strong>Persentase:</strong> 15,39%</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>6. Desa Sirkandi</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 405 Ha</li>
+                            <li><strong>Persentase:</strong> 14,80%</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>7. Desa Kecitran</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 241 Ha</li>
+                            <li><strong>Persentase:</strong> 8,81%</li>
+                            <li><strong>Keterangan:</strong> <a href="../index.html" style="color: var(--secondary-color);">Lihat Detail →</a></li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>8. Desa Kaliwinasuh</h3>
+                        <ul class="bio-list">
+                            <li><strong>Luas:</strong> ± 568 Ha</li>
+                            <li><strong>Persentase:</strong> 20,76%</li>
+                            <li><strong>Keterangan:</strong> Desa Terluas</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistik Luas Desa -->
+            <section id="statistik">
+                <h2 class="section-title">📊 Statistik Persentase Luas Wilayah Desa</h2>
                 <div class="data-table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Desa</th>
-                                <th>Luas (Hektare)</th>
+                                <th>Nama Desa</th>
+                                <th>Luas (Ha)</th>
                                 <th>Persentase</th>
-                                <th>Visualisasi</th>
+                                <th>Visual</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td>Purwareja</td>
-                                <td>262</td>
-                                <td>11,96%</td>
+                                <td>Kaliwinasuh</td>
+                                <td>568</td>
+                                <td>20,76%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 11.96%"></div>
+                                        <div class="percentage-fill" style="width: 100%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>2</td>
-                                <td>Kecitran</td>
-                                <td>241</td>
-                                <td>11,02%</td>
+                                <td>Pagak</td>
+                                <td>421</td>
+                                <td>15,39%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 11.02%"></div>
+                                        <div class="percentage-fill" style="width: 74%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td>Sirkandi</td>
-                                <td>508</td>
-                                <td>26,51%</td>
+                                <td>405</td>
+                                <td>14,80%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 26.51%"></div>
+                                        <div class="percentage-fill" style="width: 71%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>4</td>
-                                <td>Pagak</td>
-                                <td>169</td>
-                                <td>7,73%</td>
+                                <td>Kalilandak</td>
+                                <td>392</td>
+                                <td>14,33%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 7.73%"></div>
+                                        <div class="percentage-fill" style="width: 69%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>5</td>
-                                <td>Kalilandak</td>
-                                <td>177</td>
-                                <td>8,10%</td>
+                                <td>Kalimandi</td>
+                                <td>298</td>
+                                <td>10,89%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 8.10%"></div>
+                                        <div class="percentage-fill" style="width: 52%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>6</td>
-                                <td>Klampok</td>
-                                <td>238</td>
-                                <td>10,88%</td>
+                                <td>Purwareja</td>
+                                <td>287</td>
+                                <td>10,49%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 10.88%"></div>
+                                        <div class="percentage-fill" style="width: 51%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>7</td>
-                                <td>Kalimandi</td>
-                                <td>281</td>
-                                <td>12,87%</td>
+                                <td>Kecitran</td>
+                                <td>241</td>
+                                <td>8,81%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 12.87%"></div>
+                                        <div class="percentage-fill" style="width: 42%;"></div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>8</td>
-                                <td>Kaliwinasuh</td>
-                                <td>239</td>
-                                <td>10,93%</td>
+                                <td>Klampok</td>
+                                <td>124</td>
+                                <td>4,53%</td>
                                 <td>
                                     <div class="percentage-bar">
-                                        <div class="percentage-fill" style="width: 10.93%"></div>
+                                        <div class="percentage-fill" style="width: 22%;"></div>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2"><strong>JUMLAH</strong></td>
-                                <td><strong>2.187</strong></td>
+                                <td colspan="2"><strong>TOTAL</strong></td>
+                                <td><strong>2.736</strong></td>
                                 <td><strong>100,00%</strong></td>
                                 <td></td>
                             </tr>
@@ -705,41 +647,29 @@
                 </div>
             </section>
 
-            <section id="peta">
-                <h2 class="section-title">Peta Interaktif Kecamatan Purwareja Klampok</h2>
-                <p class="bio-list">Gunakan fitur Layer Control (kanan atas) untuk menyaring informasi, fitur Pencarian untuk menemukan lokasi spesifik, dan klik pada objek untuk melihat Detail Informasi. Arahkan kursor ke batas desa untuk melihat highlight area.</p>
-                <div class="map-wrap">
-                    <div id="map"></div>
-                    <aside class="map-overlay">
-                        <div class="layer-drawer collapsed" id="layerDrawer">
-                            <div class="drawer-header">
-                                <div>
-                                    <p class="drawer-title">Layer Control</p>
-                                    <p class="drawer-sub">Toggle layer peta</p>
-                                </div>
-                                <button class="drawer-toggle" id="drawerToggle" aria-label="Tampilkan panel">☰</button>
-                            </div>
-
-                            <div class="drawer-body">
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Basemap</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="basemap" checked disabled>
-                                        <span>Google Satellite</span>
-                                        <span class="badge">Aktif selalu</span>
-                                    </label>
-                                </div>
-
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Batas Wilayah</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="kecamatan" checked>
-                                        <span>Batas Desa</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+            <!-- Profil Pengembang -->
+            <section id="pengembang">
+                <h2 class="section-title">👨‍💻 Profil Pengembang</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Biodata Pengembang</h3>
+                        <ul class="bio-list">
+                            <li><strong>Nama:</strong> Sulthon Fadhlun Nafi</li>
+                            <li><strong>NIM:</strong> 23SA21A063</li>
+                            <li><strong>Kelas:</strong> SI 23B GIS</li>
+                            <li><strong>Universitas:</strong> Amikom Purwokerto</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Teknologi yang Digunakan</h3>
+                        <ul class="bio-list">
+                            <li><strong>GIS Software:</strong> QGIS Desktop</li>
+                            <li><strong>Web Mapping:</strong> Leaflet.js</li>
+                            <li><strong>Export Tool:</strong> QGIS2Web Plugin</li>
+                            <li><strong>Basemap:</strong> Google Satellite</li>
+                            <li><strong>Data Format:</strong> GeoJSON</li>
+                        </ul>
+                    </div>
                 </div>
             </section>
         </main>
@@ -749,7 +679,7 @@
         </footer>
 
         <script>
-            // ========== Fluid Animation System ==========
+            // Fluid Animation System
             const observerOptions = {
                 threshold: 0.1,
                 rootMargin: '0px 0px -50px 0px'
@@ -795,247 +725,6 @@
                     }
                 });
             });
-
-            // Layer drawer toggle
-            const drawerToggle = document.getElementById('drawerToggle');
-            const layerDrawer = document.getElementById('layerDrawer');
-            if (drawerToggle && layerDrawer) {
-                drawerToggle.addEventListener('click', () => {
-                    layerDrawer.classList.toggle('collapsed');
-                });
-            }
         </script>
-        <script src="js/qgis2web_expressions.js"></script>
-        <script src="js/leaflet.js"></script>
-        <script src="js/L.Control.Layers.Tree.min.js"></script>
-        <script src="js/L.Control.Locate.min.js"></script>
-        <script src="js/multi-style-layer.js"></script>
-        <script src="js/leaflet.rotatedMarker.js"></script>
-        <script src="js/leaflet.pattern.js"></script>
-        <script src="js/leaflet-hash.js"></script>
-        <script src="js/Autolinker.min.js"></script>
-        <script src="js/rbush.min.js"></script>
-        <script src="js/labelgun.min.js"></script>
-        <script src="js/labels.js"></script>
-        <script src="js/leaflet.photon.js"></script>
-        <script src="js/leaflet-measure.js"></script>
-        <script src="js/leaflet-search.js"></script>
-        <script src="data/PurwarejaKlampok_1.js"></script>
-        <script>
-        // ========== Map Initialization ==========
-        var map = L.map('map', {
-            zoomControl: false, 
-            maxZoom: 28, 
-            minZoom: 1
-        }).setView([-7.474, 109.455], 13);
-
-        var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
-        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        
-        // Popup helper functions
-        function removeEmptyRowsFromPopupContent(content, feature) {
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = content;
-            var rows = tempDiv.querySelectorAll('tr');
-            for (var i = 0; i < rows.length; i++) {
-                var td = rows[i].querySelector('td.visible-with-data');
-                var key = td ? td.id : '';
-                if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
-                    rows[i].parentNode.removeChild(rows[i]);
-                }
-            }
-            return tempDiv.innerHTML;
-        }
-
-        function addClassToPopupIfMedia(content, popup) {
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = content;
-            var imgTd = tempDiv.querySelector('td img');
-            if (imgTd) {
-                var src = imgTd.getAttribute('src');
-                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
-                    popup._contentNode.classList.add('media');
-                    setTimeout(function() { popup.update(); }, 10);
-                }
-            }
-        }
-
-        var zoomControl = L.control.zoom({
-            position: 'topleft'
-        }).addTo(map);
-
-        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
-
-        var measureControl = new L.Control.Measure({
-            position: 'topleft',
-            primaryLengthUnit: 'meters',
-            secondaryLengthUnit: 'kilometers',
-            primaryAreaUnit: 'sqmeters',
-            secondaryAreaUnit: 'hectares'
-        });
-        measureControl.addTo(map);
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
-
-        var bounds_group = new L.featureGroup([]);
-
-        // ========== Basemap Layer ==========
-        map.createPane('pane_GoogleSatellite_0');
-        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
-        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            pane: 'pane_GoogleSatellite_0',
-            opacity: 1.0,
-            attribution: '',
-            minZoom: 1,
-            maxZoom: 28,
-        });
-        map.addLayer(layer_GoogleSatellite_0);
-
-        // ========== Hover Style for Village Boundaries ==========
-        var hoverStyle = {
-            weight: 5,
-            color: '#F59E0B',
-            opacity: 1,
-            fillOpacity: 0.5,
-            fillColor: '#F59E0B'
-        };
-
-        var originalStyles = {};
-
-        // ========== Village Boundaries Layer (PurwarejaKlampok_1) ==========
-        function pop_PurwarejaKlampok_1(feature, layer) {
-            var popupContent = '<table style="font-family: Space Grotesk, sans-serif;">\
-                    <tr>\
-                        <th scope="row" style="padding: 8px; background: #0F2C59; color: white;">Nama Desa</th>\
-                        <td style="padding: 8px; font-weight: 600;">' + (feature.properties['NAMOBJ'] !== null ? feature.properties['NAMOBJ'] : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row" style="padding: 8px; background: #f1f5f9;">Kecamatan</th>\
-                        <td style="padding: 8px;">' + (feature.properties['WADMKC'] !== null ? feature.properties['WADMKC'] : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row" style="padding: 8px; background: #f1f5f9;">Kabupaten</th>\
-                        <td style="padding: 8px;">' + (feature.properties['WADMKK'] !== null ? feature.properties['WADMKK'] : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row" style="padding: 8px; background: #f1f5f9;">Provinsi</th>\
-                        <td style="padding: 8px;">' + (feature.properties['WADMPR'] !== null ? feature.properties['WADMPR'] : '') + '</td>\
-                    </tr>\
-                </table>';
-            
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-            layer.on('popupopen', function(e) {
-                addClassToPopupIfMedia(content, e.popup);
-            });
-            layer.bindPopup(content, { maxHeight: 400 });
-
-            // Mouse hover effects
-            layer.on('mouseover', function(e) {
-                var target = e.target;
-                originalStyles[L.stamp(target)] = {
-                    weight: target.options.weight,
-                    color: target.options.color,
-                    opacity: target.options.opacity,
-                    fillOpacity: target.options.fillOpacity,
-                    fillColor: target.options.fillColor
-                };
-                target.setStyle(hoverStyle);
-                target.bringToFront();
-            });
-
-            layer.on('mouseout', function(e) {
-                var target = e.target;
-                var key = L.stamp(target);
-                if (originalStyles[key]) {
-                    target.setStyle(originalStyles[key]);
-                    delete originalStyles[key];
-                }
-            });
-        }
-
-        // Village colors based on name - with transparency
-        var villageColors = {
-            'Kalimandi': '#4CAF50',
-            'Klampok': '#2196F3',
-            'Kalilandak': '#9C27B0',
-            'Purwareja': '#FF9800',
-            'Pagak': '#00BCD4',
-            'Sirkandi': '#E91E63',
-            'Kecitran': '#8BC34A',
-            'Kaliwinasuh': '#795548'
-        };
-
-        function style_PurwarejaKlampok_1(feature) {
-            var villageName = feature.properties['NAMOBJ'];
-            var fillColor = villageColors[villageName] || '#666666';
-            
-            return {
-                pane: 'pane_PurwarejaKlampok_1',
-                opacity: 0.9,
-                color: '#ffffff',
-                dashArray: '',
-                lineCap: 'round',
-                lineJoin: 'round',
-                weight: 2.5,
-                fill: true,
-                fillOpacity: 0.35,
-                fillColor: fillColor,
-                interactive: true,
-            }
-        }
-
-        map.createPane('pane_PurwarejaKlampok_1');
-        map.getPane('pane_PurwarejaKlampok_1').style.zIndex = 401;
-        map.getPane('pane_PurwarejaKlampok_1').style['mix-blend-mode'] = 'normal';
-        
-        var layer_PurwarejaKlampok_1 = new L.geoJson(json_PurwarejaKlampok_1, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_PurwarejaKlampok_1',
-            layerName: 'layer_PurwarejaKlampok_1',
-            pane: 'pane_PurwarejaKlampok_1',
-            onEachFeature: pop_PurwarejaKlampok_1,
-            style: style_PurwarejaKlampok_1,
-        });
-        bounds_group.addLayer(layer_PurwarejaKlampok_1);
-        map.addLayer(layer_PurwarejaKlampok_1);
-
-        // Add village name labels
-        layer_PurwarejaKlampok_1.eachLayer(function(layer) {
-            if (layer.feature && layer.feature.properties['NAMOBJ']) {
-                layer.bindTooltip(
-                    '<div style="color: #fff; font-size: 11pt; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.5);">' + 
-                    layer.feature.properties['NAMOBJ'] + 
-                    '</div>', 
-                    {
-                        permanent: true, 
-                        direction: 'center',
-                        className: 'village-label'
-                    }
-                );
-            }
-        });
-
-        // ========== Layer Toggle Functionality ==========
-        var layerToggles = document.querySelectorAll('[data-layer-key]');
-        layerToggles.forEach(function(toggle) {
-            toggle.addEventListener('change', function() {
-                var layerKey = this.getAttribute('data-layer-key');
-                if (layerKey === 'kecamatan') {
-                    if (this.checked) {
-                        map.addLayer(layer_PurwarejaKlampok_1);
-                    } else {
-                        map.removeLayer(layer_PurwarejaKlampok_1);
-                    }
-                }
-            });
-        });
-
-        // Fit map to show all villages with padding
-        map.fitBounds(layer_PurwarejaKlampok_1.getBounds(), {
-            padding: [40, 40]
-        });
-        </script>        
     </body>
 </html>

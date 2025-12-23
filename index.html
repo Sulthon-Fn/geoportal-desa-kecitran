@@ -573,10 +573,8 @@
                 </div>
                 <button class="menu-toggle" aria-label="Toggle menu">☰</button>
                 <nav class="menu" aria-label="Navigasi utama">
-                    <a href="#beranda">Beranda</a>
-                    <a href="#bio">Bio</a>
-                    <a href="#desa" class="pill">Peta Desa</a>
-                    <a href="./kecamatan/index.html" aria-label="Peta Kecamatan" class="pill">Peta Kecamatan</a>
+                    <a href="peta.html" class="pill">🗺️ Peta Desa</a>
+                    <a href="kecamatan/peta.html">Peta Kecamatan</a>
                 </nav>
             </div>
         </header>
@@ -587,8 +585,8 @@
                 <h1>Sistem Informasi Geografis Desa Kecitran</h1>
                 <p>Platform pemetaan digital yang menyajikan data spatial batas administrasi, sebaran infrastruktur, dan sarana publik secara interaktif, akurat, dan transparan.</p>
                 <div class="cta-row">
-                    <a class="btn btn-primary" href="#desa">🗺️ Peta Desa</a>
-                    <a class="btn btn-ghost" href="./kecamatan/index.html">🏛️ Peta Kecamatan</a>
+                    <a class="btn btn-primary" href="peta.html">🗺️ Buka Peta Desa</a>
+                    <a class="btn btn-ghost" href="kecamatan/index.html">🏛️ Lihat Kecamatan</a>
                 </div>
             </section>
 
@@ -628,91 +626,54 @@
                     <div class="card">
                         <h3>Biodata Pengembang</h3>
                         <ul class="bio-list">
-                            <li>Nama : Sulthon Fadhlun Nafi</li>
-                            <li>NIM : 23SA21A063</li>
-                            <li>SI 23B GIS</li>
+                            <li><strong>Nama:</strong> Sulthon Fadhlun Nafi</li>
+                            <li><strong>NIM:</strong> 23SA21A063</li>
+                            <li><strong>Kelas:</strong> SI 23B GIS</li>
+                            <li><strong>Universitas:</strong> Amikom Purwokerto</li>
                         </ul>
                     </div>
                     <div class="card">
-                        <h3>Rencana Pengembangan Wilayah</h3>
-                        <p class="bio-list">Saat ini sistem memuat data spatial penuh untuk Desa Kecitran. Arsitektur telah disiapkan untuk integrasi tingkat kecamatan (Purwareja Klampok). Modul kecamatan akan diaktifkan otomatis begitu data spatial terkait terverifikasi dan siap dipublikasikan.</p>
+                        <h3>Teknologi yang Digunakan</h3>
+                        <ul class="bio-list">
+                            <li><strong>GIS Software:</strong> QGIS Desktop</li>
+                            <li><strong>Web Mapping:</strong> Leaflet.js</li>
+                            <li><strong>Export Tool:</strong> QGIS2Web Plugin</li>
+                            <li><strong>Basemap:</strong> Google Satellite</li>
+                        </ul>
                     </div>
                 </div>
             </section>
 
+            <!-- Executive Summary Section -->
+            <section id="summary">
+                <h2 class="section-title">📋 Deskripsi Umum (Executive Summary)</h2>
+                <div class="card-grid">
+                    <div class="card" style="grid-column: 1 / -1; border-top-color: var(--accent-color);">
+                        <h3>Tentang Sistem Informasi Geografis Desa Kecitran</h3>
+                        <p class="bio-list" style="line-height: 1.8;">
+                            Sistem Informasi Geografis (SIG/GIS) Desa Kecitran merupakan platform pemetaan digital berbasis web yang dikembangkan untuk menyajikan data spasial wilayah desa secara interaktif dan informatif. Sistem ini memvisualisasikan batas-batas administrasi RT/RW, sebaran infrastruktur jalan, bangunan, serta landmark penting seperti sekolah, fasilitas kesehatan, dan tempat pemakaman umum (TPU).
+                        </p>
+                        <br>
+                        <p class="bio-list" style="line-height: 1.8;">
+                            Platform ini dibangun menggunakan teknologi <strong>QGIS</strong> untuk pengolahan data geospasial dan <strong>Leaflet.js</strong> sebagai library peta interaktif berbasis JavaScript. Data disajikan di atas layer <strong>Google Satellite</strong> untuk memberikan konteks visual yang akurat. Sistem dilengkapi dengan fitur pencarian lokasi, layer control untuk mengatur visibilitas data, dan popup informasi detail untuk setiap objek.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Peta Section - Link to Map Page -->
             <section id="desa">
-                <h2 class="section-title">Peta Interaktif Desa Kecitran</h2>
-                <p class="bio-list">Gunakan fitur Layer Control (kanan atas) untuk menyaring informasi, fitur Pencarian untuk menemukan lokasi spesifik, dan klik pada objek untuk melihat Detail Informasi. Peta ini responsif dan dapat diakses melalui perangkat seluler.</p>
-                <div class="map-wrap">
-                    <div id="map"></div>
-                    <aside class="map-overlay">
-                        <div class="layer-drawer collapsed" id="layerDrawer">
-                            <div class="drawer-header">
-                                <div>
-                                    <p class="drawer-title">Layer &amp; Pencarian</p>
-                                    <p class="drawer-sub">Toggle untuk layer &amp; cari fitur</p>
-                                </div>
-                                <button class="drawer-toggle" id="drawerToggle" aria-label="Tampilkan panel">☰</button>
-                            </div>
-
-                            <div class="drawer-body">
-                                <div class="search-box">
-                                    <input id="featureSearch" type="search" placeholder="Cari RT/RW, jalan, landmark..." autocomplete="off">
-                                    <div class="search-results" id="searchResults"></div>
-                                </div>
-
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Basemap</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="basemap" checked disabled>
-                                        <span>Google Satellite</span>
-                                        <span class="badge">Aktif selalu</span>
-                                    </label>
-                                </div>
-
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Batas Administrasi</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="desa" checked>
-                                        <span>Batas Desa Kecitran</span>
-                                    </label>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="rw" checked>
-                                        <span>Batas RW</span>
-                                    </label>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="rtrw" checked>
-                                        <span>RT / RW</span>
-                                    </label>
-                                </div>
-
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Infrastruktur</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="jalan" checked>
-                                        <span>Jalan Desa</span>
-                                    </label>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="bangunan">
-                                        <span>Bangunan &amp; Gedung</span>
-                                        <span class="badge">Berat</span>
-                                    </label>
-                                </div>
-
-                                <div class="layer-section">
-                                    <p class="layer-section-title">Titik Penting</p>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="landmark" checked>
-                                        <span>Landmark (sekolah, faskes, TPU)</span>
-                                    </label>
-                                    <label class="layer-toggle">
-                                        <input type="checkbox" data-layer-key="rumah" checked>
-                                        <span>Posisi Rumah Saya</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                <h2 class="section-title">🗺️ Peta Interaktif Desa Kecitran</h2>
+                <div class="card-grid">
+                    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 48px;">
+                        <h3 style="font-size: 24px; margin-bottom: 16px;">Jelajahi Peta Interaktif</h3>
+                        <p class="bio-list" style="max-width: 600px; margin: 0 auto 24px;">
+                            Gunakan fitur Layer Control untuk menyaring informasi, fitur Pencarian untuk menemukan lokasi spesifik, dan klik pada objek untuk melihat Detail Informasi. Peta ini responsif dan dapat diakses melalui perangkat seluler.
+                        </p>
+                        <a class="btn btn-primary" href="peta.html" style="display: inline-flex; font-size: 18px;">
+                            🗺️ Buka Peta Interaktif
+                        </a>
+                    </div>
                 </div>
             </section>
         </main>
@@ -748,6 +709,33 @@
             }, observerOptions);
 
             // Observe cards and section titles
+            document.querySelectorAll('.card, .section-title').forEach(el => {
+                animationObserver.observe(el);
+            });
+
+            // Menu toggle
+            const toggle = document.querySelector('.menu-toggle');
+            const menu = document.querySelector('.menu');
+            if (toggle && menu) {
+                toggle.addEventListener('click', () => menu.classList.toggle('show'));
+            }
+
+            // Smooth scroll with easing for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
             document.querySelectorAll('.card, .section-title').forEach(el => {
                 animationObserver.observe(el);
             });
